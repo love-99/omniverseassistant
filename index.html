@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#090b18">
+<meta name="description" content="OmniverseAssistant — a free, offline-first personal digital command center.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<title>OmniverseAssistant</title>
+<style>
+:root{--bg:#090b18;--panel:#12162a;--panel2:#1a2040;--text:#f4f6ff;--muted:#aab2d5;--accent:#8b7cff;--accent2:#43d9d2;--border:#2c3357;--danger:#ff718d}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(circle at 50% -10%,#25245a 0,#090b18 48%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer;border:1px solid var(--border);border-radius:12px;padding:10px 12px;background:var(--panel);color:var(--text)}
+button:hover{border-color:var(--accent)}
+button.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#090b18;border:0;font-weight:800}
+button.danger{color:#ffb4c1}
+.app{max-width:980px;margin:0 auto;min-height:100vh;padding:14px;display:flex;flex-direction:column}
+header{display:flex;align-items:center;gap:12px;padding:8px 0 14px;border-bottom:1px solid var(--border)}
+.logo{width:46px;height:46px;border-radius:15px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;color:#090b18;font-size:25px;font-weight:900;flex-shrink:0}
+.brand h1{font-size:19px;margin:0}.sub{font-size:12px;color:var(--muted);margin-top:3px}.status{font-size:11px;color:var(--accent2);margin-top:4px}
+.controls{margin-left:auto;display:flex;gap:7px;align-items:center}select{border:1px solid var(--border);border-radius:11px;padding:9px;background:var(--panel);color:var(--text);max-width:125px}
+.hero{text-align:center;padding:25px 8px 20px}.orb{margin:0 auto 12px;width:66px;height:66px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff 0,#b3a9ff 7%,#7963ff 28%,#25225f 65%,#11142b 100%);box-shadow:0 0 28px #8b7cff77,0 0 70px #43d9d222}
+.hero h2{margin:0 0 7px;font-size:25px}.hero p{margin:0;color:var(--muted);font-size:14px}
+.nav{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:8px 0 18px}
+.nav button{font-size:12px;padding:11px 5px;background:#11152a}.nav button.active{border-color:var(--accent);background:#26234c;color:#fff}
+.page{display:none}.page.active{display:block}
+.pagehead{margin:4px 0 14px}.pagehead h2{margin:0 0 5px;font-size:22px}.pagehead p{margin:0;color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}
+.card{background:linear-gradient(145deg,#151a32,#101426);border:1px solid var(--border);border-radius:17px;padding:15px;min-width:0}
+.card h3{margin:0 0 7px;font-size:15px}.card p{color:var(--muted);font-size:13px;line-height:1.45;margin:0 0 12px}
+.tile{min-height:135px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:12px}.tile .emoji{font-size:25px}.tile button{width:100%}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}.stat{background:#11162b;border:1px solid var(--border);border-radius:13px;padding:12px}.stat strong{display:block;font-size:21px}.stat span{color:var(--muted);font-size:11px}
+.field{width:100%;border:1px solid var(--border);border-radius:12px;background:#0d1122;color:var(--text);padding:11px;outline:none;margin:5px 0 10px}.field:focus{border-color:var(--accent)}textarea.field{min-height:90px;resize:vertical}
+.stack{display:flex;flex-direction:column;gap:8px}.row{display:flex;gap:8px;flex-wrap:wrap}.row>*{flex:1}
+#chat{display:flex;flex-direction:column;gap:10px;max-height:48vh;overflow:auto;padding:5px 0 14px}
+.msg{max-width:92%;padding:11px 13px;border-radius:15px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.45;font-size:14px}.msg.user{align-self:flex-end;background:linear-gradient(135deg,#6455d9,#4d58a9);border-bottom-right-radius:5px}.msg.bot{align-self:flex-start;background:var(--panel);border:1px solid var(--border);border-bottom-left-radius:5px}.sender{font-size:10px;color:#c9c9ff;margin-bottom:4px;font-weight:700}
+.composer{position:sticky;bottom:0;padding:10px 0;background:linear-gradient(180deg,#090b1800,#090b18 18%)}.inputrow{display:flex;gap:8px;align-items:flex-end;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:7px}.inputrow textarea{flex:1;min-height:43px;max-height:130px;margin:0;border:0;background:transparent;resize:vertical;padding:9px;color:var(--text);outline:0}.note{text-align:center;color:var(--muted);font-size:11px;padding-top:8px}
+.item{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border)}.item:last-child{border-bottom:0}.item strong{display:block;font-size:14px;overflow-wrap:anywhere}.item small{display:block;color:var(--muted);margin-top:4px;white-space:pre-wrap;overflow-wrap:anywhere}.item button{flex-shrink:0;padding:6px 9px}
+.empty{padding:18px;text-align:center;color:var(--muted);font-size:13px}.quiz-option{display:block;width:100%;text-align:left;margin:7px 0}
+footer{text-align:center;color:#7f88ae;font-size:10px;padding:18px 0 6px}
+@media(max-width:560px){.app{padding:11px}.nav{grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}.nav button{font-size:10px;padding:10px 2px}.grid{gap:8px}.card{padding:12px}.hero{padding-top:20px}.hero h2{font-size:22px}.controls{gap:4px}.controls button{padding:8px;font-size:11px}.brand h1{font-size:17px}.stats span{font-size:10px}.stats strong{font-size:18px}}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div class="logo">◎</div>
+  <div class="brand"><h1>OmniverseAssistant</h1><div class="sub" id="tagline">Your universe of ideas</div><div class="status" id="status">● Offline starter ready</div></div>
+  <div class="controls"><select id="language" aria-label="Language"><option value="en">English</option><option value="am">አማርኛ</option></select><button id="installBtn" type="button" hidden>Install</button><button id="exportBtn" type="button">Export</button></div>
+</header>
+
+<section class="hero">
+  <div class="orb"></div><h2 id="welcome">Think beyond limits.</h2><p id="description">A free, local-first personal command center.</p>
+</section>
+
+<nav class="nav" aria-label="Main navigation">
+  <button class="active" data-page="home">⌂ Home</button>
+  <button data-page="assistant">✦ Assistant</button>
+  <button data-page="learn">▤ Learn</button>
+  <button data-page="creative">✎ Create</button>
+  <button data-page="projects">◈ Projects</button>
+  <button data-page="automation">⚡ Automate</button>
+  <button data-page="notes">▧ Notes</button>
+  <button data-page="knowledge">✧ Knowledge</button>
+  <button data-page="tools">⚙ Tools</button>
+  <button data-page="settings">☰ Settings</button>
+</nav>
+
+<main>
+<section id="page-home" class="page active">
+  <div class="pagehead"><h2 id="homeTitle">Your command center</h2><p id="homeDesc">A small step today builds a bigger universe tomorrow.</p></div>
+  <div class="stats">
+    <div class="stat"><strong id="noteCount">0</strong><span id="notesLabel">Saved notes</span></div>
+    <div class="stat"><strong id="projectCount">0</strong><span id="projectsLabel">Projects</span></div>
+    <div class="stat"><strong id="messageCount">0</strong><span id="messagesLabel">Chat messages</span></div>
+  </div>
+  <div class="grid">
+    <div class="card tile"><div><div class="emoji">✦</div><h3>AI Assistant</h3><p>Ask questions and plan your next step.</p></div><button data-go="assistant">Open chat</button></div>
+    <div class="card tile"><div><div class="emoji">▤</div><h3>Learning Academy</h3><p>Learn web programming and technology.</p></div><button data-go="learn">Start learning</button></div>
+    <div class="card tile"><div><div class="emoji">✎</div><h3>Creative Studio</h3><p>Generate prompts for writing and ideas.</p></div><button data-go="creative">Create ideas</button></div>
+    <div class="card tile"><div><div class="emoji">⚡</div><h3>Automation Center</h3><p>Save repeatable personal workflows and run them when you choose.</p></div><button data-go="automation">Manage workflows</button></div>
+    <div class="card tile"><div><div class="emoji">◈</div><h3>Project Manager</h3><p>Save project plans and track progress.</p></div><button data-go="projects">Open projects</button></div>
+    <div class="card tile"><div><div class="emoji">▧</div><h3>Notes Vault</h3><p>Keep useful thoughts on this device.</p></div><button data-go="notes">Open notes</button></div>
+    <div class="card tile"><div><div class="emoji">⚙</div><h3>Technology Lab</h3><p>Try small offline tools and experiments.</p></div><button data-go="tools">Open tools</button></div>
+  </div>
+</section>
+
+<section id="page-assistant" class="page">
+  <div class="pagehead"><h2>AI Conversation</h2><p>Offline programmed assistant — not a full AI model.</p></div>
+  <div class="card"><div id="chat" aria-live="polite"></div>
+    <div class="composer"><div class="inputrow"><textarea id="chatInput" rows="1" placeholder="Ask something..." aria-label="Message"></textarea><button class="primary" id="sendBtn" type="button">Send ➤</button></div><div class="note">No cloud AI or API key is used in this starter.</div></div>
+    <div class="row" style="margin-top:10px"><button id="clearChat" class="danger" type="button">Clear chat</button><button id="chatHelp" type="button">Suggested questions</button></div>
+  </div>
+</section>
+
+<section id="page-learn" class="page">
+  <div class="pagehead"><h2>Learning Academy</h2><p>Short beginner lessons you can practice on your phone.</p></div>
+  <div class="card"><h3>Lesson 1: How a web app works</h3><p><b>HTML</b> creates the structure. <b>CSS</b> styles it. <b>JavaScript</b> makes buttons and features work.</p><p><b>አማርኛ፦</b> HTML መዋቅሩን ይሠራል፤ CSS መልኩን ያስተካክላል፤ JavaScript እንዲሠራ ያደርገዋል።</p><button id="lessonQuiz" class="primary" type="button">Take a quick quiz</button><div id="quizArea"></div></div>
+  <div class="card" style="margin-top:10px"><h3>Practice task</h3><p>Find the page title in this file, change the text inside the <code>&lt;title&gt;</code> tag, save, and preview.</p></div>
+</section>
+
+<section id="page-creative" class="page">
+  <div class="pagehead"><h2>Creative Studio</h2><p>Make new starting points for original work.</p></div>
+  <div class="card stack"><label for="creativeType">What do you want to create?</label><select id="creativeType" class="field"><option value="story">A story or poem</option><option value="song">A song concept</option><option value="image">A mysterious image</option><option value="invention">A new invention</option><option value="philosophy">A deep philosophical idea</option></select><button id="generateIdea" class="primary">Generate creative prompt</button><textarea id="creativeOutput" class="field" placeholder="Your prompt will appear here..." readonly></textarea><button id="saveCreative">Save prompt as a note</button></div>
+</section>
+
+<section id="page-projects" class="page">
+  <div class="pagehead"><h2>Project Manager</h2><p>Save ideas and turn them into manageable steps.</p></div>
+  <div class="card"><form id="projectForm" class="stack"><label for="projectName">Project name</label><input id="projectName" class="field" required placeholder="e.g. OmniverseAssistant"><label for="projectDetail">Goal / next steps</label><textarea id="projectDetail" class="field" placeholder="What do you want to build?"></textarea><button class="primary" type="submit">Save project</button></form></div>
+  <div class="card" style="margin-top:10px"><h3>Your projects</h3><div id="projectList"></div></div>
+</section>
+
+<section id="page-automation" class="page">
+  <div class="pagehead"><h2>Automation Center</h2><p>Create reusable checklists and launch them manually. This version does not run in the background.</p></div>
+  <div class="card"><form id="workflowForm" class="stack">
+    <label for="workflowName">Workflow name</label><input id="workflowName" class="field" required maxlength="80" placeholder="e.g. Daily learning routine">
+    <label for="workflowSteps">Steps (one step per line)</label><textarea id="workflowSteps" class="field" required placeholder="Open my course
+Practice for 20 minutes
+Save one discovery"></textarea>
+    <button class="primary" type="submit">Save workflow</button>
+  </form></div>
+  <div class="card" style="margin-top:10px"><h3>My workflows</h3><div id="workflowList"></div></div>
+</section>
+
+<section id="page-notes" class="page">
+  <div class="pagehead"><h2>Notes Vault</h2><p>Notes are saved in browser storage on this device when available.</p></div>
+  <div class="card"><form id="noteForm" class="stack"><label for="noteTitle">Title</label><input id="noteTitle" class="field" required placeholder="Note title"><label for="noteBody">Your note</label><textarea id="noteBody" class="field" required placeholder="Write your idea..."></textarea><button class="primary" type="submit">Save note</button></form></div>
+  <div class="card" style="margin-top:10px"><h3>Saved notes</h3><div id="noteList"></div></div>
+</section>
+
+
+<section id="page-knowledge" class="page">
+  <div class="pagehead"><h2>✧ Memory & Knowledge Library</h2><p>Save discoveries, concepts, questions, and useful information in one searchable place.</p></div>
+  <div class="card">
+    <h3>Add to your knowledge library</h3>
+    <form id="knowledgeForm" class="stack">
+      <label for="knowledgeTitle">Title / ርዕስ</label>
+      <input id="knowledgeTitle" class="field" required maxlength="100" placeholder="e.g. The hidden patterns of memory">
+      <label for="knowledgeCategory">Category / ምድብ</label>
+      <select id="knowledgeCategory" class="field">
+        <option>Learning</option><option>Ideas</option><option>Philosophy</option><option>Science</option><option>Technology</option><option>Creativity</option><option>Personal</option><option>Other</option>
+      </select>
+      <label for="knowledgeBody">Your knowledge / ያስቀመጥከው እውቀት</label>
+      <textarea id="knowledgeBody" class="field" required placeholder="Write what you discovered, learned, or want to remember..."></textarea>
+      <label for="knowledgeProject">Connect to a project (optional)</label>
+      <select id="knowledgeProject" class="field"><option value="">No project link</option></select>
+      <label for="knowledgeNote">Connect to a note (optional)</label>
+      <select id="knowledgeNote" class="field"><option value="">No note link</option></select>
+      <label for="knowledgeTags">Tags (separate with commas)</label>
+      <input id="knowledgeTags" class="field" placeholder="memory, creativity, research">
+      <button class="primary" type="submit">Save to library</button>
+    </form>
+  </div>
+  <div class="card" style="margin-top:10px">
+    <h3>Your knowledge library</h3>
+    <input id="knowledgeSearch" class="field" placeholder="Search titles, content, categories, or tags...">
+    <div class="row">
+      <select id="knowledgeFilter" class="field"><option value="">All categories</option><option>Learning</option><option>Ideas</option><option>Philosophy</option><option>Science</option><option>Technology</option><option>Creativity</option><option>Personal</option><option>Other</option></select>
+      <button id="knowledgeClearSearch" type="button">Clear search</button>
+    </div>
+    <p id="knowledgeCount" class="note">0 saved entries</p>
+    <div id="knowledgeInsights" class="note"></div>
+    <div id="knowledgeList"></div>
+  </div>
+  <div class="card" style="margin-top:10px">
+    <h3>How this memory works / ይህ ማስታወሻ እንዴት ይሠራል?</h3>
+    <p>Entries are saved locally in this browser on your device. This is a personal searchable library, not automatic AI memory. Export your data regularly as a backup.</p>
+    <p><b>አማርኛ፦</b> ያስቀመጥከው መረጃ በዚህ ብራውዘር ውስጥ በስልክህ ላይ ይቀመጣል። ይህ በራስህ የምትፈልገው የእውቀት ቤተ-መጻሕፍት ነው፤ በራሱ የሚያስብ AI ማስታወሻ አይደለም።</p>
+  </div>
+</section>
+
+<section id="page-tools" class="page">
+  <div class="pagehead"><h2>Technology Lab</h2><p>Simple tools that work locally in this page.</p></div>
+  <div class="grid">
+    <div class="card"><h3>Word counter</h3><p>Count words and characters in a text.</p><textarea id="wordInput" class="field" placeholder="Paste or type text..."></textarea><p id="wordResult">0 words · 0 characters</p></div>
+    <div class="card"><h3>Idea mixer</h3><p>Combine two concepts to start a new direction.</p><input id="mixA" class="field" placeholder="Concept A e.g. dreams"><input id="mixB" class="field" placeholder="Concept B e.g. astronomy"><button id="mixBtn" class="primary">Mix ideas</button><p id="mixResult"></p></div>
+  </div>
+</section>
+
+<section id="page-settings" class="page">
+  <div class="pagehead"><h2>Settings and privacy</h2><p>Local-first starter configuration.</p></div>
+  <div class="card"><h3>What this version does</h3><p>✓ Runs as a local HTML page.<br>✓ Saves notes, projects, language, and chat in browser localStorage where supported.<br>✓ Includes English and Amharic interface options.<br>✓ Does not require an API key or payment.</p><p>Limitations: replies are programmed, not generated by a real language model. Workflows are saved locally and run manually. Telegram integration, background automation, cloud sync, and generative AI are not included in this offline edition.</p><button id="exportSettings" class="primary">Export my data as JSON</button> <button id="importBtn" type="button">Import backup</button><input id="importFile" type="file" accept="application/json,.json" hidden><button id="resetData" class="danger" style="margin-left:6px">Reset all app data</button><p id="settingsMessage" class="note"></p></div>
+</section>
+</main>
+<footer>OMNIVERSE AI · PERSONAL DIGITAL WORKSPACE · VERSION 5 · OFFLINE-FIRST WORKSPACE</footer>
+</div>
+
+<script>
+(() => {
+"use strict";
+const $ = id => document.getElementById(id);
+const STORAGE_KEY = "omniverse_ai_workspace_v5";
+const PREVIOUS_STORAGE_KEY = "omniverse_ai_workspace_v4";
+const LEGACY_STORAGE_KEY = "omniverse_ai_workspace_v3";
+const OLDER_STORAGE_KEY = "omniverse_ai_workspace_v2";
+const translations = {
+ en:{tagline:"Your universe of ideas",status:"● Offline starter ready",welcome:"Think beyond limits.",description:"A free, local-first personal command center.",send:"Send ➤",placeholder:"Ask something...",you:"You",assistant:"Omniverse",hello:"Hello! I'm Omniverse AI, your offline starter assistant. I can help with basic learning, project planning, and creative prompts. My replies are programmed, so I'm not a full AI language model yet.",unknown:"I don't have a programmed answer for that yet. Try asking about your name, learning HTML, planning a project, or creating an idea.",project:"Let's build it step by step:\n1. Choose one small feature.\n2. Create the screen.\n3. Test it on your phone.\n4. Save your progress and improve it.",learn:"HTML structures a page, CSS styles it, and JavaScript adds behavior. Try changing one small thing in your project and previewing it.",creative:"Imagine a library where every memory becomes a star. Related stars form constellations, and each constellation becomes a new project.",thanks:"You're welcome! Let's keep learning and building.",how:"I'm ready to help. I'm a programmed offline starter, not a human or a full AI model.",saved:"Saved successfully.",empty:"Nothing here yet.",clearConfirm:"Clear all chat messages?",resetConfirm:"This deletes this app's saved notes, projects, and chat from this browser. Continue?"},
+ am:{tagline:"የሐሳቦችህ ዓለም",status:"● ከመስመር ውጭ ዝግጁ",welcome:"ከገደብ በላይ አስብ።",description:"ነፃ እና በመሣሪያህ ላይ የሚሠራ የግል ማዕከል።",send:"ላክ ➤",placeholder:"ጥያቄህን ጻፍ...",you:"አንተ",assistant:"Omniverse",hello:"ሰላም! እኔ Omniverse AI የመነሻ ረዳት ነኝ። በቀላል ትምህርት፣ የፕሮጀክት እቅድ እና የፈጠራ ሐሳቦች ላይ ልረዳህ እችላለሁ። መልሶቼ ቀድሞ የተዘጋጁ ናቸው፤ ገና ሙሉ AI ሞዴል አይደለሁም።",unknown:"ለዚህ ጥያቄ የተዘጋጀ መልስ የለኝም። ስለ ትምህርት፣ HTML፣ ፕሮጀክት እቅድ ወይም የፈጠራ ሐሳብ ጠይቅ።",project:"በደረጃ እንገንባ፦\n1. አንድ ትንሽ ባህሪ ምረጥ።\n2. ማያ ገጹን ሥራ።\n3. በስልክህ ሞክር።\n4. ሥራህን አስቀምጥና አሻሽል።",learn:"HTML የገጹን መዋቅር ይሠራል፣ CSS መልኩን ያስተካክላል፣ JavaScript ደግሞ እንዲሠራ ያደርጋል። አንድ ትንሽ ነገር ቀይረህ Preview አድርግ።",creative:"እያንዳንዱ ትዝታ ኮከብ የሚሆንበትን ቤተ-መጻሕፍት አስብ። ተዛማጅ ኮከቦች የሐሳብ ሕብረ-ከዋክብት ይፈጥራሉ።",thanks:"ምንም አይደለም! እንማርና እንገንባ።",how:"ልረዳህ ዝግጁ ነኝ። ከመስመር ውጭ የሚሠራ የተዘጋጀ ረዳት ነኝ፤ ሰው ወይም ሙሉ AI ሞዴል አይደለሁም።",saved:"ተቀምጧል።",empty:"እስካሁን ምንም የለም።",clearConfirm:"ሁሉንም የውይይት መልዕክቶች ማጥፋት?",resetConfirm:"ይህ በዚህ ብራውዘር ውስጥ ያሉ ማስታወሻዎችን፣ ፕሮጀክቶችንና ውይይትን ይሰርዛል። ቀጥል?"}
+};
+let lang = localStorage.getItem("omniverse_ai_lang") || "en";
+if (!translations[lang]) lang = "en";
+let data = {notes:[],projects:[],messages:[],knowledge:[],workflows:[]};
+try {
+ const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || localStorage.getItem(PREVIOUS_STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY) || localStorage.getItem(OLDER_STORAGE_KEY) || "null");
+ if(saved && typeof saved==="object"){
+  data.notes=Array.isArray(saved.notes)?saved.notes:[];
+  data.projects=Array.isArray(saved.projects)?saved.projects:[];
+  data.messages=Array.isArray(saved.messages)?saved.messages:[];
+  data.knowledge=Array.isArray(saved.knowledge)?saved.knowledge:[];
+  data.workflows=Array.isArray(saved.workflows)?saved.workflows:[];
+ }
+} catch(e) {}
+function t(k){return (translations[lang] && translations[lang][k]) || translations.en[k] || k;}
+function persist(){try{localStorage.setItem(STORAGE_KEY,JSON.stringify(data));return true;}catch(e){$("status").textContent="Storage unavailable; data may not persist.";return false;}}
+function showPage(name){document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id==="page-"+name));document.querySelectorAll("[data-page]").forEach(b=>b.classList.toggle("active",b.dataset.page===name));window.scrollTo(0,0);}
+function addMessage(role,text){data.messages.push({role,text,at:Date.now()});data.messages=data.messages.slice(-150);persist();renderChat();updateStats();}
+function renderChat(){const box=$("chat");box.replaceChildren();if(!data.messages.length){const p=document.createElement("div");p.className="empty";p.textContent=t("hello");box.appendChild(p);return;}data.messages.forEach(m=>{const el=document.createElement("div");el.className="msg "+(m.role==="user"?"user":"bot");const sender=document.createElement("div");sender.className="sender";sender.textContent=m.role==="user"?t("you"):t("assistant");const body=document.createElement("div");body.textContent=m.text;el.append(sender,body);box.appendChild(el);});box.scrollTop=box.scrollHeight;}
+function reply(text){const q=text.toLowerCase().trim();if(/^(hi|hello|hey)\b|ሰላም/.test(q))return t("hello");if(/your name|who are you|what is your name/.test(q))return lang==="am"?"ስሜ Omniverse AI ነው። የዲጂታል ረዳትህ ነኝ።":"My name is Omniverse AI. I'm your digital assistant.";if(/how are you/.test(q))return t("how");if(/thank|thanks|አመሰግናለሁ/.test(q))return t("thanks");if(/project|build|app|plan|ፕሮጀክት|ገንባ/.test(q))return t("project");if(/learn|teach|technology|html|javascript|css|code|ተማር|ቴክኖሎጂ/.test(q))return t("learn");if(/creative|idea|create|poem|song|write|ፈጠራ|ሐሳብ/.test(q))return t("creative");if(/help|ርዳታ/.test(q))return lang==="am"?"Assistant፣ Learning፣ Creative Studio፣ Projects፣ Notes እና Tools ይሞክሩ።":"Try Assistant, Learning, Creative Studio, Projects, Notes, and Tools.";return t("unknown");}
+function send(){const input=$("chatInput");const text=input.value.trim();if(!text)return;addMessage("user",text);addMessage("assistant",reply(text));input.value="";input.focus();}
+function updateStats(){$("noteCount").textContent=data.notes.length;$("projectCount").textContent=data.projects.length;$("messageCount").textContent=data.messages.filter(m=>m.role==="user").length;}
+function renderNotes(){refreshKnowledgeLinks();const box=$("noteList");box.replaceChildren();if(!data.notes.length){box.innerHTML='<div class="empty">No saved notes yet.</div>';return;}data.notes.slice().reverse().forEach((n,revIndex)=>{const idx=data.notes.length-1-revIndex;const row=document.createElement("div");row.className="item";const content=document.createElement("div");const title=document.createElement("strong");title.textContent=n.title;const body=document.createElement("small");body.textContent=n.body;content.append(title,body);const del=document.createElement("button");del.textContent="Delete";del.addEventListener("click",()=>{data.notes.splice(idx,1);persist();renderNotes();updateStats();});row.append(content,del);box.appendChild(row);});}
+function renderProjects(){refreshKnowledgeLinks();const box=$("projectList");box.replaceChildren();if(!data.projects.length){box.innerHTML='<div class="empty">No projects yet.</div>';return;}data.projects.slice().reverse().forEach((p,revIndex)=>{const idx=data.projects.length-1-revIndex;const row=document.createElement("div");row.className="item";const content=document.createElement("div");const title=document.createElement("strong");title.textContent=p.name;const detail=document.createElement("small");detail.textContent=p.detail||"No details added.";content.append(title,detail);const del=document.createElement("button");del.textContent="Delete";del.addEventListener("click",()=>{data.projects.splice(idx,1);persist();renderProjects();updateStats();});row.append(content,del);box.appendChild(row);});}
+function saveNote(title,body){data.notes.push({title:title.trim(),body:body.trim(),at:Date.now()});persist();renderNotes();updateStats();}
+
+function refreshKnowledgeLinks(){
+ const project=$("knowledgeProject"),note=$("knowledgeNote");
+ if(project){const old=project.value;project.innerHTML='<option value="">No project link</option>';data.projects.forEach((p,i)=>{const o=document.createElement("option");o.value=String(i);o.textContent=p.name;project.appendChild(o);});if(old!=="")project.value=old;}
+ if(note){const old=note.value;note.innerHTML='<option value="">No note link</option>';data.notes.forEach((n,i)=>{const o=document.createElement("option");o.value=String(i);o.textContent=n.title;note.appendChild(o);});if(old!=="")note.value=old;}
+}
+function renderKnowledge(){
+ const box=$("knowledgeList"); if(!box)return;
+ box.replaceChildren();
+ const query=($("knowledgeSearch").value||"").trim().toLowerCase();
+ const category=$("knowledgeFilter").value;
+ const matches=data.knowledge.map((entry,index)=>({...entry,_index:index})).filter(entry=>{
+  const hay=[entry.title,entry.body,entry.category,(entry.tags||[]).join(" "),entry.projectName||"",entry.noteTitle||""].join(" ").toLowerCase();
+  return (!query||hay.includes(query))&&(!category||entry.category===category);
+ }).sort((a,b)=>Number(!!b.favorite)-Number(!!a.favorite)||(b.at||0)-(a.at||0));
+ $("knowledgeCount").textContent=matches.length+" matching entries · "+data.knowledge.length+" saved in total";
+ const counts={};data.knowledge.forEach(e=>{const c=e.category||"Other";counts[c]=(counts[c]||0)+1;});
+ const insight=$("knowledgeInsights");insight.textContent=data.knowledge.length?"Topics: "+Object.entries(counts).map(([k,v])=>k+" ("+v+")").join(" · ")+" | Favorites: "+data.knowledge.filter(e=>e.favorite).length:"Your topic overview will appear after you save knowledge.";
+ if(!matches.length){const empty=document.createElement("div");empty.className="empty";empty.textContent=data.knowledge.length?"No matching knowledge found.":"Your library is empty. Save your first discovery above.";box.appendChild(empty);return;}
+ matches.forEach(entry=>{
+  const row=document.createElement("div");row.className="item";
+  const content=document.createElement("div");content.style.minWidth="0";
+  const title=document.createElement("strong");title.textContent=(entry.favorite?"★ ":"")+entry.title;
+  const meta=document.createElement("small");meta.textContent=(entry.category||"Other")+" · "+new Date(entry.at||Date.now()).toLocaleDateString()+" · "+(entry.tags||[]).join(", ");
+  const body=document.createElement("small");body.textContent=entry.body;
+  const links=document.createElement("small");links.textContent=[entry.projectName?"Project: "+entry.projectName:"",entry.noteTitle?"Note: "+entry.noteTitle:""].filter(Boolean).join(" · ");
+  content.append(title,meta,body);if(links.textContent)content.appendChild(links);
+  const actions=document.createElement("div");actions.style.display="flex";actions.style.flexWrap="wrap";actions.style.gap="6px";
+  const fav=document.createElement("button");fav.textContent=entry.favorite?"★ Saved":"☆ Favorite";fav.addEventListener("click",()=>{data.knowledge[entry._index].favorite=!data.knowledge[entry._index].favorite;persist();renderKnowledge();});
+  const edit=document.createElement("button");edit.textContent="Edit";edit.addEventListener("click",()=>{
+   const current=data.knowledge[entry._index];
+   const nt=prompt("Edit title:",current.title);if(nt===null)return;
+   const nb=prompt("Edit knowledge:",current.body);if(nb===null)return;
+   const nc=prompt("Edit tags (comma separated):",(current.tags||[]).join(", "));if(nc===null)return;
+   if(!nt.trim()||!nb.trim()){alert("Title and knowledge cannot be empty.");return;}
+   current.title=nt.trim();current.body=nb.trim();current.tags=nc.split(",").map(x=>x.trim()).filter(Boolean);current.at=Date.now();
+   persist();renderKnowledge();refreshKnowledgeLinks();
+  });
+  const del=document.createElement("button");del.className="danger";del.textContent="Delete";
+  del.addEventListener("click",()=>{if(confirm("Delete this knowledge entry?")){data.knowledge.splice(entry._index,1);persist();renderKnowledge();}});
+  actions.append(fav,edit,del);row.append(content,actions);box.appendChild(row);
+ });
+}
+$("knowledgeForm").addEventListener("submit",e=>{
+ e.preventDefault();
+ const title=$("knowledgeTitle").value.trim(),body=$("knowledgeBody").value.trim();
+ if(!title||!body)return;
+ const pi=$("knowledgeProject").value,ni=$("knowledgeNote").value;
+ data.knowledge.push({title,body,category:$("knowledgeCategory").value,tags:$("knowledgeTags").value.split(",").map(x=>x.trim()).filter(Boolean),projectName:pi===""?"":(data.projects[Number(pi)]||{}).name||"",noteTitle:ni===""?"":(data.notes[Number(ni)]||{}).title||"",favorite:false,at:Date.now()});
+ persist();$("knowledgeForm").reset();refreshKnowledgeLinks();renderKnowledge();
+});
+$("knowledgeSearch").addEventListener("input",renderKnowledge);
+$("knowledgeFilter").addEventListener("change",renderKnowledge);
+$("knowledgeClearSearch").addEventListener("click",()=>{$("knowledgeSearch").value="";$("knowledgeFilter").value="";renderKnowledge();});
+
+function renderWorkflows(){
+ const box=$("workflowList");if(!box)return;box.replaceChildren();
+ if(!data.workflows.length){const empty=document.createElement("div");empty.className="empty";empty.textContent="No workflows yet. Create your first reusable checklist above.";box.appendChild(empty);return;}
+ data.workflows.slice().reverse().forEach((w,rev)=>{const idx=data.workflows.length-1-rev;const row=document.createElement("div");row.className="item";const content=document.createElement("div");content.style.minWidth="0";const title=document.createElement("strong");title.textContent=(w.enabled===false?"○ ":"● ")+w.name;const detail=document.createElement("small");detail.textContent=(w.steps||[]).length+" steps · "+(w.enabled===false?"Paused":"Ready to run");content.append(title,detail);const actions=document.createElement("div");actions.style.display="flex";actions.style.flexWrap="wrap";actions.style.gap="6px";
+ const run=document.createElement("button");run.textContent="Run";run.disabled=w.enabled===false;run.addEventListener("click",()=>{const lines=(w.steps||[]).map((s,i)=>(i+1)+". "+s).join("\n");alert(w.name+"\n\n"+lines+"\n\nMark each step complete as you do it.");});
+ const toggle=document.createElement("button");toggle.textContent=w.enabled===false?"Enable":"Pause";toggle.addEventListener("click",()=>{data.workflows[idx].enabled=w.enabled===false;persist();renderWorkflows();});
+ const del=document.createElement("button");del.className="danger";del.textContent="Delete";del.addEventListener("click",()=>{if(confirm("Delete this workflow?")){data.workflows.splice(idx,1);persist();renderWorkflows();}});
+ actions.append(run,toggle,del);row.append(content,actions);box.appendChild(row);
+ });
+}
+$("workflowForm").addEventListener("submit",e=>{e.preventDefault();const name=$("workflowName").value.trim();const steps=$("workflowSteps").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);if(!name||!steps.length){alert("Add a name and at least one step.");return;}data.workflows.push({name,steps,enabled:true,at:Date.now()});persist();$("workflowForm").reset();renderWorkflows();});
+
+function exportData(){const blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),language:lang,data},null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download="omniverse-ai-backup.json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+function importDataFile(file){if(!file)return;const reader=new FileReader();reader.onload=()=>{try{const parsed=JSON.parse(String(reader.result||""));const incoming=parsed.data&&typeof parsed.data==="object"?parsed.data:parsed;if(!confirm("Import this backup and replace the data currently saved in this app? Export your current data first if you need a backup."))return;data={notes:Array.isArray(incoming.notes)?incoming.notes:[],projects:Array.isArray(incoming.projects)?incoming.projects:[],messages:Array.isArray(incoming.messages)?incoming.messages:[],knowledge:Array.isArray(incoming.knowledge)?incoming.knowledge:[],workflows:Array.isArray(incoming.workflows)?incoming.workflows:[]};persist();renderChat();renderNotes();renderProjects();refreshKnowledgeLinks();renderKnowledge();renderWorkflows();updateStats();$("settingsMessage").textContent="Backup imported.";}catch(err){alert("That backup file could not be read. Choose an Omniverse JSON backup.");}};reader.readAsText(file);}
+function setLanguage(){const am=lang==="am";document.documentElement.lang=lang;$("language").value=lang;$("tagline").textContent=t("tagline");$("status").textContent=t("status");$("welcome").textContent=t("welcome");$("description").textContent=t("description");$("chatInput").placeholder=t("placeholder");$("sendBtn").textContent=t("send");}
+document.querySelectorAll("[data-page]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+document.querySelectorAll("[data-go]").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.go)));
+$("sendBtn").addEventListener("click",send);$("chatInput").addEventListener("keydown",e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}});
+$("clearChat").addEventListener("click",()=>{if(confirm(t("clearConfirm"))){data.messages=[];persist();renderChat();updateStats();}});
+$("chatHelp").addEventListener("click",()=>{const examples=lang==="am"?"ሰላም\nስሜ ማን ነው?\nHTML ምንድነው?\nለፕሮጀክቴ እርዳኝ":"Hello\nWhat's your name?\nWhat is HTML?\nHelp me plan a project";alert(examples);});
+$("language").addEventListener("change",e=>{lang=e.target.value;localStorage.setItem("omniverse_ai_lang",lang);setLanguage();renderChat();});
+$("noteForm").addEventListener("submit",e=>{e.preventDefault();saveNote($("noteTitle").value,$("noteBody").value);$("noteTitle").value="";$("noteBody").value="";});
+$("projectForm").addEventListener("submit",e=>{e.preventDefault();data.projects.push({name:$("projectName").value.trim(),detail:$("projectDetail").value.trim(),at:Date.now()});persist();renderProjects();updateStats();$("projectName").value="";$("projectDetail").value="";});
+$("generateIdea").addEventListener("click",()=>{const type=$("creativeType").value;const prompts={story:"Write a story where a person discovers that their forgotten memories are places in a hidden city. Reveal the truth through choices and sensory details, not exposition.",song:"Create an original dark cinematic song about a signal sent from the future by someone who remembers a life that has not happened yet. Use vivid imagery and a clear emotional progression.",image:"Design a mysterious double-image: at first glance it is a cosmic landscape; on closer inspection, the stars and shadows form a second symbolic face. Keep the silhouette readable at small size.",invention:"Invent a low-cost tool that helps a beginner learn a difficult skill using only a phone, short experiments, and feedback. Explain the core mechanism and a tiny prototype.",philosophy:"Explore this question: if every memory changed slightly each time you recalled it, what makes you the same person? Present two opposing views and a surprising third possibility."};$("creativeOutput").value=prompts[type];});
+$("saveCreative").addEventListener("click",()=>{const body=$("creativeOutput").value.trim();if(!body){alert("Generate a prompt first.");return;}saveNote("Creative prompt",body);alert(t("saved"));});
+$("wordInput").addEventListener("input",()=>{const s=$("wordInput").value.trim();$("wordResult").textContent=(s?s.split(/\s+/).length:0)+" words · "+$("wordInput").value.length+" characters";});
+$("mixBtn").addEventListener("click",()=>{const a=$("mixA").value.trim(),b=$("mixB").value.trim();if(!a||!b){$("mixResult").textContent="Enter both concepts first.";return;}$("mixResult").textContent="Hybrid idea: "+a+" becomes the hidden system behind "+b+". What unexpected rule connects them, and what would change if that rule were true?";});
+$("lessonQuiz").addEventListener("click",()=>{$("quizArea").innerHTML='<p><b>Question:</b> Which part of a web page controls its appearance?</p><button class="quiz-option" data-answer="wrong">HTML</button><button class="quiz-option" data-answer="right">CSS</button><button class="quiz-option" data-answer="wrong">JavaScript</button>';document.querySelectorAll("[data-answer]").forEach(b=>b.addEventListener("click",()=>{ $("quizArea").innerHTML='<p>'+ (b.dataset.answer==="right"?"Correct! CSS controls appearance.":"Not quite. The correct answer is CSS, which styles the page.")+'</p><button id="retryQuiz">Try again</button>'; $("retryQuiz").addEventListener("click",()=> $("lessonQuiz").click());}));});
+$("exportBtn").addEventListener("click",exportData);$("exportSettings").addEventListener("click",exportData);
+$("importBtn").addEventListener("click",()=>$("importFile").click());$("importFile").addEventListener("change",e=>{importDataFile(e.target.files&&e.target.files[0]);e.target.value="";});
+$("resetData").addEventListener("click",()=>{if(confirm(t("resetConfirm"))){data={notes:[],projects:[],messages:[],knowledge:[],workflows:[]};persist();renderChat();renderNotes();renderProjects();refreshKnowledgeLinks();renderKnowledge();renderWorkflows();updateStats();$("settingsMessage").textContent="App data reset."; }});
+persist();setLanguage();renderChat();renderNotes();renderProjects();refreshKnowledgeLinks();renderKnowledge();renderWorkflows();updateStats();
+if(!data.messages.length){data.messages.push({role:"assistant",text:t("hello"),at:Date.now()});persist();renderChat();}
+let installPrompt=null;const installButton=$("installBtn");
+window.addEventListener("beforeinstallprompt",event=>{event.preventDefault();installPrompt=event;installButton.hidden=false;});
+installButton.addEventListener("click",async()=>{if(!installPrompt){alert("To install: open this app in Chrome, tap the three-dot menu, then choose Install app or Add to Home screen.");return;}installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;installButton.hidden=true;});
+window.addEventListener("appinstalled",()=>{installButton.hidden=true;$("status").textContent="● Installed on this device";});
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{$("status").textContent="Offline cache could not be enabled in this browser.";}));}
+})();
+</script>
+</body>
+</html>

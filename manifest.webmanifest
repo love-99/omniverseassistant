@@ -1,0 +1,32 @@
+{
+  "id": "./",
+  "name": "OmniverseAssistant",
+  "short_name": "Omniverse",
+  "description": "A free, offline-first personal digital command center.",
+  "lang": "en",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#090b18",
+  "theme_color": "#090b18",
+  "categories": [
+    "productivity",
+    "education",
+    "utilities"
+  ],
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
